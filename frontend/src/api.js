@@ -1,6 +1,8 @@
 const configuredBackend = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 const localFallbacks = ["http://localhost:8000", "http://localhost:8001"];
-const BACKEND_URLS = Array.from(new Set([configuredBackend, ...localFallbacks]));
+const BACKEND_URLS = import.meta.env.PROD
+  ? [configuredBackend]
+  : Array.from(new Set([configuredBackend, ...localFallbacks]));
 
 async function requestBackend(path, options = {}) {
   let lastError;

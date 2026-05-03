@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -6,10 +8,21 @@ from app.sentinel.firewall import SentinelFirewall
 from app.sentinel.validators import validate_agent_message
 from app.workflows.research_workflow import DEFAULT_QUESTION, ResearchWorkflow
 
+def cors_origins() -> list[str]:
+    configured = os.getenv("FRONTEND_ORIGINS", "")
+    origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+    origins.extend(origin.strip() for origin in configured.split(",") if origin.strip())
+    return origins
+
+
 app = FastAPI(title="NLIP Sentinel", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=cors_origins(),
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,4 +74,3 @@ def approve(payload: dict) -> dict:
         "approved": True,
         "message": "Risky action approved for demo execution.",
     }
-
