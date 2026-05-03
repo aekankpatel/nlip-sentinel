@@ -6,7 +6,7 @@ class TavilySearchTool:
     async def search(self, query: str) -> list[dict[str, str]]:
         settings = get_settings()
         if not settings.has_tavily:
-            return self._mock_results()
+            return self._mock_results(query)
 
         try:
             async with httpx.AsyncClient(timeout=15) as client:
@@ -32,25 +32,36 @@ class TavilySearchTool:
                 for item in results
                 if item.get("url")
             ]
-            return normalized or self._mock_results()
+            return normalized or self._mock_results(query)
         except Exception:
-            return self._mock_results()
+            return self._mock_results(query)
 
-    def _mock_results(self) -> list[dict[str, str]]:
+    def _mock_results(self, query: str = "") -> list[dict[str, str]]:
+        topic = (query[:80].strip()) or "the research topic"
         return [
             {
-                "title": "Airline fuel costs and profitability",
-                "url": "https://www.iata.org/en/publications/economics/fuel-monitor/",
-                "snippet": "Jet fuel is a substantial operating cost for airlines and can affect margins.",
+                "title": f"Research overview: {topic[:60]}",
+                "url": "https://scholar.example.com/overview",
+                "snippet": (
+                    f"Current research on '{topic}' draws on multiple empirical data sources. "
+                    "Findings vary across studies and should be interpreted with appropriate caveats."
+                ),
             },
             {
-                "title": "Oil prices, macro shocks, and transportation equities",
-                "url": "https://www.eia.gov/energyexplained/oil-and-petroleum-products/prices-and-outlook.php",
-                "snippet": "Oil price movements reflect supply, demand, and macro expectations.",
+                "title": "Systematic review and evidence synthesis",
+                "url": "https://www.cochrane.org/reviews",
+                "snippet": (
+                    "Systematic reviews aggregate evidence across independent studies and are considered "
+                    "high-quality evidence. Meta-analyses can quantify effect sizes where individual "
+                    "studies are underpowered."
+                ),
             },
             {
-                "title": "Equity factor controls for return analysis",
-                "url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
-                "snippet": "Market factors are common controls when studying stock return variation.",
+                "title": "Statistical analysis and regression methodology",
+                "url": "https://stats.stackexchange.com",
+                "snippet": (
+                    "Regression analysis and hypothesis testing are standard tools for quantitative "
+                    "research. Controlling for confounders improves causal inference in observational data."
+                ),
             },
         ]

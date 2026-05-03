@@ -38,11 +38,15 @@ class ResearchAgent(BaseAgent):
         citations = [item["url"] for item in recipient._research_data]
         state.citations = citations
 
+        # Derive evidence from the actual Tavily results so it reflects the real question topic
         evidence = [
-            "Oil prices are a major input-cost variable for airlines because jet fuel is typically one of their largest operating expenses.",
-            "Airline stock returns also respond to broad equity-market moves, demand, capacity, hedging, and macroeconomic expectations.",
-            "A small regression demo can test whether oil returns have incremental explanatory power after controlling for market returns.",
+            item["snippet"]
+            for item in recipient._research_data
+            if item.get("snippet")
         ]
+        if not evidence:
+            evidence = ["No research snippets were returned for this query."]
+
         recipient._ctx["research"] = {"evidence": evidence, "citations": citations}
 
         msg = recipient.envelope(

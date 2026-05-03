@@ -26,13 +26,22 @@ class PlannerAgent(BaseAgent):
             "steps": ["research", "code_generation", "sandbox_execution", "verification", "report"],
         }
 
-        msg = recipient.envelope(
+        research_msg = recipient.envelope(
             receiver="research_agent",
             intent="research.search",
-            content="Find sources about oil prices, airline fuel costs, and airline stock returns.",
+            content="Find sources relevant to the research question.",
             metadata=plan,
         )
-        recipient._validate_message(msg)
+        recipient._validate_message(research_msg)
+
+        code_msg = recipient.envelope(
+            receiver="code_agent",
+            intent="code.generate",
+            content="Generate Python analysis code for the research question.",
+            risk_level="medium",
+        )
+        recipient._validate_message(code_msg)
+
         recipient._audit.add("planner_agent", "create_plan", "completed", f"Plan created for: {question[:80]}")
 
         return True, f"[planner_agent] Plan created. Steps: {plan['steps']}"

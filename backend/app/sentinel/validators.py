@@ -17,7 +17,11 @@ def find_unsafe_code_patterns(code: str) -> list[str]:
 
 
 def find_unsupported_claims(text: str | list[str]) -> list[str]:
+    import re
     combined = " ".join(text) if isinstance(text, list) else text
     lowered = combined.lower()
-    return [phrase for phrase in UNSUPPORTED_FINANCIAL_CLAIMS if phrase in lowered]
+    return [
+        phrase for phrase in UNSUPPORTED_FINANCIAL_CLAIMS
+        if re.search(r"\b" + re.escape(phrase) + r"\b", lowered)
+    ]
 

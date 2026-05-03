@@ -62,15 +62,6 @@ class CodeAgent(BaseAgent):
         state = recipient._state
         assert state
 
-        # Planner delegates code generation to this agent
-        code_msg = recipient.envelope(
-            receiver="code_agent",
-            intent="code.generate",
-            content="Generate Python code for airline returns regression.",
-            risk_level="medium",
-        )
-        recipient._validate_message(code_msg)
-
         question = state.question
         scenario = recipient._scenario(question)
 

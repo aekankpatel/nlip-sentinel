@@ -34,24 +34,25 @@ class ReportAgent(BaseAgent):
         title = recipient._title_from_question(state.question)
         citations = state.citations
 
+        exec_out = state.execution_output or ""
+
         # Build the report; key_result will be replaced by Gemini summary after GroupChat
         state.final_report = FinalReport(
             title=title,
             research_question=state.question,
             methodology=(
-                "The AG2 multi-agent workflow combined background research with a reproducible "
-                "synthetic-data regression: airline_return ~ oil_return + market_return. "
-                "Synthetic data keeps the live demo deterministic."
+                "The AG2 multi-agent pipeline combined background research with a reproducible "
+                "synthetic regression as its computational analysis step. "
+                "Synthetic data keeps the live demo deterministic and reproducible without external APIs."
             ),
             evidence=[
                 *evidence,
-                f"Citations reviewed: {', '.join(citations[:3])}.",
+                f"Citations reviewed: {', '.join(citations[:3])}." if citations else "No external citations collected in this run.",
             ],
-            code_execution_summary=state.execution_output or "",
+            code_execution_summary=exec_out,
             key_result=(
-                "The demo regression found a negative oil-return coefficient after controlling for market returns. "
-                "That suggests oil shocks can matter for airline returns, but the result should be treated as an illustrative "
-                "workflow validation rather than investment advice."
+                "The pipeline executed successfully. A synthetic regression was run as the computational demo step. "
+                "The result should be treated as an illustrative workflow validation rather than a domain-specific conclusion."
             ),
             limitations=[
                 "The MVP uses synthetic monthly data for reliable live execution.",
@@ -81,10 +82,18 @@ class ReportAgent(BaseAgent):
     @staticmethod
     def _title_from_question(question: str) -> str:
         lowered = question.lower()
-        if "social media" in lowered or "sentiment" in lowered:
-            return "Social Media Sentiment and Airline Stock Returns"
+        # Flag risky prompts explicitly
         if "guaranteed" in lowered or "trading recommendation" in lowered:
-            return "Risky Airline Stock Claim Review"
-        if "oil" in lowered and "airline" in lowered:
-            return "Oil Price Changes and Airline Stock Returns"
-        return "Evidence Review for Agent-Run Financial Analysis"
+            return "Risky Claim Review"
+        # Extract a readable title from the first clause of the question
+        first_clause = question.split(",")[0].split(".")[0].split("?")[0].strip()
+        # Drop common boilerplate prefixes
+        for prefix in ("research whether", "research if", "research how", "investigate whether",
+                        "analyze whether", "can you research", "please research"):
+            if first_clause.lower().startswith(prefix):
+                first_clause = first_clause[len(prefix):].strip()
+                break
+        first_clause = first_clause.capitalize()
+        if len(first_clause) > 72:
+            first_clause = first_clause[:69].rstrip() + "..."
+        return first_clause or "Evidence-Based Research Analysis"
