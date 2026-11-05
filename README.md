@@ -6,7 +6,7 @@ NLIP Sentinel shows how multi-agent systems can become safer, inspectable, and r
 
 ## Why This Matters
 
-Most demos show what agents *can* do. NLIP Sentinel shows how I can *trust* them. As agentic frameworks like AG2 make agent-to-agent workflows common, teams need middleware that validates messages, constrains tools, preserves evidence, and explains every decision. That is what Sentinel provides.
+Most demos show what agents *can* do. NLIP Sentinel shows how you can *trust* them. As agentic frameworks like AG2 make agent-to-agent workflows common, teams need middleware that validates messages, constrains tools, preserves evidence, and explains every decision. That is what Sentinel provides.
 
 ## Workflow
 
